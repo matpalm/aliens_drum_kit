@@ -25,3 +25,9 @@ class SampleDB(object):
                   " values (?, ?, ?)",
                     (fname, length, sample_rate))
         self.conn.commit()
+
+    def clips_between_lengths(self, min_len, max_len):
+        c = self.conn.cursor()
+        c.execute("select id, fname from samples where length >= ? and length <= ?", 
+                    (min_len, max_len))
+        return c.fetchall()        
