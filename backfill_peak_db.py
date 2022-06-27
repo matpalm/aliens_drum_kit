@@ -12,11 +12,9 @@ import tqdm
 from multiprocessing import Pool
 
 def calculate_peak_db(sample_id):    
-    clip_fname = f"clips/samples/{util.fname_for(int(sample_id))}"
-    clip = np.load(clip_fname)
-    X = librosa.stft(clip, n_fft=256) 
-    Xdb = librosa.amplitude_to_db(abs(X))
-    return np.max(Xdb)    
+    npy_fname = f"npys/samples/{util.fname_for(int(sample_id))}"
+    array = np.load(npy_fname)
+    return util.peak_db(array)
 
 print("derive peak_dbs")
 sample_ids = [int(l) for l in sys.stdin]
@@ -28,15 +26,3 @@ for result in tqdm.tqdm(p.imap(calculate_peak_db, sample_ids), total=len(sample_
 print("update database")
 db = sample_db.SampleDB()
 db.set_peak_dbs(sample_ids, peak_dbs)
-
-# for sample_id in tqdm.tqdm(sample_ids):
-#     try:
-#         clip_fname = f"clips/samples/{util.fname_for(sample_id)}"
-#         clip = np.load(clip_fname)
-#         X = librosa.stft(clip, n_fft=256) 
-#         Xdb = librosa.amplitude_to_db(abs(X))
-#         peak_db = np.max(Xdb)
-#         db.set_peak_db(sample_id, peak_db)
-#         print(sample_id)
-#     except Exception as e:
-#         print(f"FAILED [{sid}] [{str(e)}]", file=sys.stderr)

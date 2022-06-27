@@ -3,6 +3,7 @@ import jax.numpy as jnp
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt
+import numpy as np
 
 def ensure_dir_exists(directory):
     if not os.path.exists(directory):
@@ -46,3 +47,8 @@ def show_waveform_and_spectrogram(a):
     librosa.display.specshow(Xdb, sr=SR, x_axis='time', y_axis='hz', ax=axs[1])
 
     plt.show()        
+
+def peak_db(clip):
+    X = librosa.stft(clip, n_fft=256) 
+    Xdb = librosa.amplitude_to_db(abs(X))
+    return np.max(Xdb)

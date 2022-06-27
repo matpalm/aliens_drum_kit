@@ -14,7 +14,7 @@ from multiprocessing import Pool
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--clips-dir', type=str, required=True)
+parser.add_argument('--npys-dir', type=str, required=True)
 parser.add_argument('--min-sample-len-sec', type=float, required=0.2)
 parser.add_argument('--max-sample-len-sec', type=float, required=0.5)
 parser.add_argument('--clip-len-sec', type=float, default=0.3)
@@ -44,22 +44,22 @@ def process(job):
     # crop, or pad, depending on size
     wav = ensure_target_length(wav)
     # save in subdirs
-    clip_fname = f"{opts.clips_dir}/{util.fname_for(sid)}"
+    clip_fname = f"{opts.npys_dir}/{util.fname_for(sid)}"
     util.ensure_dir_exists_for_file(clip_fname)
     np.save(clip_fname, wav)
 
-util.ensure_dir_exists(opts.clips_dir)
+util.ensure_dir_exists(opts.npys_dir)
 
 db = sample_db.SampleDB()
 
-jobs = list(db.clips_between_lengths(opts.min_sample_len_sec, opts.max_sample_len_sec))
+jobs = list(db.samples_between_lengths(opts.min_sample_len_sec, opts.max_sample_len_sec))
 
 for job in tqdm.tqdm(jobs):
     print(">", job)
     process(job)
 
-#p = Pool(1)
-#for _ in tqdm.tqdm(p.imap(process, jobs), total=len(jobs)):
-#    pass
+# p = Pool(1)
+# for _ in tqdm.tqdm(p.imap(process, jobs), total=len(jobs)):
+#     pass
 
 
