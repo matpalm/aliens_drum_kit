@@ -1,4 +1,5 @@
 import sqlite3
+import tqdm
 
 class SampleDB(object):
     def __init__(self, db_file='sample.db', check_same_thread=True):
@@ -11,8 +12,9 @@ class SampleDB(object):
             c.execute('''create table samples (
                             id integer primary key autoincrement, 
                             fname string,
-                            length integer,
-                            sample_rate integer
+                            length real,
+                            sample_rate integer,
+                            peak_db real
                         )''')
         except sqlite3.OperationalError as e:
             # assume table already exists? clumsy...
@@ -23,11 +25,27 @@ class SampleDB(object):
         c.execute("insert into samples" +
                   " (fname, length, sample_rate)" +
                   " values (?, ?, ?)",
-                    (fname, length, sample_rate))
+                    (fname, float(length), int(sample_rate)))
+        self.conn.commit()
+
+    def create_records(self, fnames, lengths, sample_rates):
+        c = self.conn.cursor()
+        for f, l, sr in tqdm.tqdm(zip(fnames, lengths, sample_rates)):            
+            c.execute("insert into samples" +
+                    " (fname, length, sample_rate)" +
+                    " values (?, ?, ?)", (f, float(l), int(sr)))
         self.conn.commit()
 
     def clips_between_lengths(self, min_len, max_len):
         c = self.conn.cursor()
         c.execute("select id, fname from samples where length >= ? and length <= ?", 
-                    (min_len, max_len))
-        return c.fetchall()        
+                    (float(min_len), float(max_len)))
+        return c.fetchall()     
+
+    def set_peak_dbs(self, sample_ids, peak_dbs):
+        c = self.conn.cursor()
+        for sample_id, peak_db in tqdm.tqdm(zip(sample_ids, peak_dbs)):
+            c.execute("update samples set peak_db=? where id=?", 
+                        (float(peak_db), sample_id))
+        self.conn.commit()
+

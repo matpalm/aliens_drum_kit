@@ -34,7 +34,10 @@ def generate_features(signal, sampling_freq,
     signal = processing.preemphasis(signal, cof=0.98, shift=1)
 
     # we calculate the filter banks in numpy since it involves some difficult
-    # to port to jax pieces and isn't dependant on the signal
+    # to port to jax pieces and isn't dependant on the signal, it's just an fixed set of
+    # parameters. 
+    # TODO(mat) externalise so they are learnable
+    # TODO(mat) where does 129 come from again?
     filter_banks = feature.filterbanks(num_filters, coefficients=129,
         sampling_freq=sampling_freq, low_freq=low_frequency,
         high_freq=high_frequency)
