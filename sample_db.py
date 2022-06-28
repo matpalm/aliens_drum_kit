@@ -63,7 +63,7 @@ class SampleDB(object):
                         (float(peak_db), sample_id))
         self.conn.commit()
 
-    def sample_clips(self, n, min_peak_db=-100, min_start=None):
+    def sample_clips(self, n=None, min_peak_db=-100, min_start=None):
         c = self.conn.cursor()
         query = "select id, start, end from clips"
         query += " where peak_db > ?"        
@@ -71,8 +71,9 @@ class SampleDB(object):
         if min_start is not None:
             query += " and start > ?"
             criteria.append(int(min_start))
-        query += " order by random()"
-        query += " limit ?"        
-        criteria.append(int(n))
+        query += " order by id"
+        if n is not None:
+            query += " limit ?"
+            criteria.append(int(n))
         c.execute(query, tuple(criteria))
         return c.fetchall() 
