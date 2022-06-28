@@ -2,3 +2,5 @@ manifest*
 sample.db
 __pycache__/
 npys
+aliens_audio.aac
+aliens_audio.npy

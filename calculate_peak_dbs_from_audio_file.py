@@ -20,8 +20,8 @@ clip_len = int(opts.sample_rate * opts.clip_len_sec)
 clip_stride = int(opts.sample_rate * opts.clip_stride_sec)
 print("output clip_len", clip_len, "clip_stride", clip_stride)
 
-clip, _sr = librosa.load(opts.input, sr=opts.sample_rate)
-print("|clip|", len(clip))
+full_audio, _sr = librosa.load(opts.input, sr=opts.sample_rate)
+print("|full_audio|", len(full_audio))
 
 db = sample_db.SampleDB()
 
@@ -33,7 +33,7 @@ while True:
     # extract subclip, exit when we've reach end
     clip_start = offset
     clip_end = offset + clip_len    
-    sub_clip = clip[clip_start : clip_end]
+    sub_clip = full_audio[clip_start : clip_end]
     if len(sub_clip) != clip_len:
         break
 

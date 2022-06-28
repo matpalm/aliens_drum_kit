@@ -14,7 +14,7 @@ from multiprocessing import Pool
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--npys-dir', type=str, required=True)
+parser.add_argument('--npys-dir', type=str, default='npys')
 parser.add_argument('--min-sample-len-sec', type=float, required=0.2)
 parser.add_argument('--max-sample-len-sec', type=float, required=0.5)
 parser.add_argument('--clip-len-sec', type=float, default=0.3)
@@ -35,7 +35,7 @@ def ensure_target_length(a):
         return a[:target_clip_len]
 
 def process(job):
-    sid, fname = job
+    sample_id, fname = job
     # load wav and sanity check size
     wav, sr = librosa.load(fname, sr=opts.sample_rate)
     wav_len = len(wav) / sr
@@ -44,9 +44,9 @@ def process(job):
     # crop, or pad, depending on size
     wav = ensure_target_length(wav)
     # save in subdirs
-    clip_fname = f"{opts.npys_dir}/{util.fname_for(sid)}"
-    util.ensure_dir_exists_for_file(clip_fname)
-    np.save(clip_fname, wav)
+    sample_fname = f"{opts.npys_dir}/samples/{util.fname_for(sample_id)}"
+    util.ensure_dir_exists_for_file(sample_fname)
+    np.save(sample_fname, wav)
 
 util.ensure_dir_exists(opts.npys_dir)
 
